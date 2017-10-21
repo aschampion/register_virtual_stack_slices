@@ -1516,7 +1516,8 @@ public class Register_Virtual_Stack_MT implements PlugIn
 	 * Generate object to concurrently extract features
 	 * 
 	 * @param p feature extraction parameters
-	 * @param ip input image
+	 * @param path file name of input image
+	 * @param index index of input image
 	 * @return list of extracted features
 	 */
 	private static  Callable<ArrayList<Feature>> extractFeatures(final Param p, final String path, final int index) {
