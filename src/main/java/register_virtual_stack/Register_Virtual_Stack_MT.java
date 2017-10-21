@@ -19,6 +19,7 @@ import ij.io.FileSaver;
 import ij.io.OpenDialog;
 import ij.plugin.PlugIn;
 import ij.process.ByteProcessor;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.awt.Color;
@@ -1604,7 +1605,13 @@ public class Register_Virtual_Stack_MT implements PlugIn
 				// Calculate transform mesh
 				TransformMesh mesh = new TransformMesh(transform, 32, imp2.getWidth(), imp2.getHeight());
 				TransformMeshMapping mapping = new TransformMeshMapping(mesh);
-							
+
+				imp2.getProcessor().invert();
+				mpicbg.ij.clahe.FastFlat.getFastInstance().run(imp2, 60, 256, 2.25f, null, true);
+
+				ImageConverter ic = new ImageConverter(imp2);
+				ic.convertToGray8();
+
 				// Create interpolated deformed image with black background
 				imp2.getProcessor().setValue(0);
 				final ImageProcessor ip2 = interpolate ? mapping.createMappedImageInterpolated(imp2.getProcessor()) : mapping.createMappedImage(imp2.getProcessor()); 
