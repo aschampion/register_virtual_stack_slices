@@ -29,7 +29,11 @@ import java.awt.TextField;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -377,18 +381,26 @@ public class Register_Virtual_Stack_MT implements PlugIn
 		}
 		
 		
-		// get file listing		
-		final String[] names = new File(source_dir).list(new FilenameFilter() 
-		{
-			public boolean accept(File dir, String name) 
-			{
-				int idot = name.lastIndexOf('.');
-				if (-1 == idot) return false;
-				return exts.contains(name.substring(idot).toLowerCase());
-			}
-		});
+		// get file listing
+		Path sourcePath = Paths.get(source_dir);
+		final String[] names;
+		try {
+			names = Files.walk(sourcePath, FileVisitOption.FOLLOW_LINKS)
+					.filter(Files::isRegularFile)
+					.filter(path -> {
+						String name = path.toString();
+						int idot = name.lastIndexOf('.');
+						if (-1 == idot) return false;
+						return exts.contains(name.substring(idot).toLowerCase());
+					})
+					.map(path -> sourcePath.relativize(path).toString())
+					.toArray(String[]::new);
+		} catch (IOException e) {
+			IJ.error("Error: could not read files from source directory.");
+			return;
+		}
 		Arrays.sort(names);
-				
+
 		if(non_shrink)
 		{
 			// Execute registration with shrinkage constrain,
